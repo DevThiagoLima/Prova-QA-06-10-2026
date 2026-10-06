@@ -1,0 +1,54 @@
+CENÁRIOS DE TESTE - calcular_desconto(valor_compra, tipo_cliente)
+==================================================================
+
+1) VALORES LIMITE (FRONTEIRAS)
+   - 0,00; 99,99; 100,00; 100,01; 499,99; 500,00; 500,01
+   - Objetivo: validar as trocas de faixa (0% -> 10% -> 20%).
+   - Exemplo: compra de 100,00 COMUM deve retornar 10,00 (o código original retornava 0).
+
+2) FAIXAS DE DESCONTO BASE (COMUM)
+   - Compra < 100         -> 0%   (ex.: 50 -> 0,00)
+   - 100 <= compra < 500  -> 10%  (ex.: 300 -> 30,00)
+   - Compra >= 500        -> 20%  (ex.: 500 -> 100,00)
+
+3) CLIENTE VIP (+5% SOBRE A BASE)
+   - VIP com compra < 100  -> 5%  (ex.: 50 -> 2,50)
+   - VIP com compra 100 a 499,99 -> 15% (ex.: 300 -> 45,00)
+   - VIP com compra >= 500 -> 25% (ex.: 500 -> 125,00)
+   - Cliente "COMUM" não recebe acréscimo.
+
+4) VIP COM VARIAÇÕES DE ESCRITA
+   - "VIP", "vip", "Vip", " VIP " (com espaços)
+   - Todos devem receber o mesmo desconto (ex.: 300 -> 45,00).
+   - O código original só aceitava "VIP" em maiúsculo.
+
+5) REGRA DO TETO DE R$ 200,00
+   - Desconto exatamente no teto: 1000 COMUM (20%) -> 200,00
+   - Logo acima do teto: 1000,01 COMUM -> 200,00
+   - VIP que ultrapassa o teto: 999 VIP (25% = 249,75) -> 200,00
+   - Compra muito alta: 1.000.000 COMUM -> 200,00
+
+6) ARREDONDAMENTO
+   - Valores com centavos que geram mais de 2 casas decimais.
+   - Ex.: 499,99 x 10% = 49,999 -> 50,00
+   - Evita erros de ponto flutuante (0.10 + 0.05 = 0.15000000000000002).
+
+7) DADOS INESPERADOS - valor_compra (não descritos na regra)
+   - Valor negativo (-1; -0,01)       -> deve lançar ValueError
+   - NaN e infinito                   -> deve lançar ValueError
+   - None                             -> deve lançar TypeError
+   - Texto ("abc", "100")             -> deve lançar TypeError
+   - Booleano (True)                  -> deve lançar TypeError
+   - Lista ([100])                    -> deve lançar TypeError
+   - Valor zero (0)                   -> desconto 0,00
+
+8) DADOS INESPERADOS - tipo_cliente (não descritos na regra)
+   - Vazio ("") ou só espaços ("  ")  -> deve lançar ValueError
+   - Categoria inexistente ("PREMIUM")-> deve lançar ValueError
+   - None                             -> deve lançar TypeError
+   - Número (123)                     -> deve lançar TypeError
+
+RESUMO
+   - Total de testes automatizados: 35
+   - Código original (descontoComErro): 15 falham, 20 passam
+   - Código corrigido (descontoSemErro): 35 passam
